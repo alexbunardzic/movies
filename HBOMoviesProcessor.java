@@ -15,6 +15,7 @@ import java.net.URISyntaxException;
 public class HBOMoviesProcessor implements MoviesProcessor {
   private Document document;
   private Elements movieLinks;
+  private URI uri;
   private int counter = 0;
   private java.util.List<HBODigitalContent> movies = new java.util.ArrayList<HBODigitalContent>();
 
@@ -26,38 +27,11 @@ public class HBOMoviesProcessor implements MoviesProcessor {
   	movieLinks = document.select("a[href]");
     for (Element link : movieLinks) {
       if(counter < 50) {
-        try {
-          Date date = new Date(Long.parseLong(link.attr("data-d")));
-          Calendar cal = Calendar.getInstance();
-          cal.setTime(date);
-          int month = cal.get(Calendar.MONTH) + 1;
-          int year = cal.get(Calendar.YEAR);
-          String url_string = "http://stats.grok.se/json/en/" + year + month + "/" + link.attr("data-t");
-          URI uri = new URI(url_string.replace(" ", "%20"));
-          Document doc2 = Jsoup.connect(uri.toString()).get();
-          Elements body = doc2.select("body");
-          String bodyString = body.toString();
-          int curlyIndex = bodyString.indexOf("{");
-          bodyString = bodyString.substring(curlyIndex, bodyString.length());
-          int lessthanIndex = bodyString.indexOf("<");
-          bodyString = bodyString.substring(0, lessthanIndex);
-          HBODigitalContent content = new HBODigitalContent();
-          movies.add(content);
-          int totalViews = content.getTotalViewsPerMonth(bodyString);  
-          counter ++;
-        }
-        catch (NumberFormatException nfe) {
-          nfe.printStackTrace();
-        }
-        catch(java.net.SocketTimeoutException ste){
-          ste.printStackTrace();	
-        }
-        catch(java.io.IOException ioe){
-          ioe.printStackTrace();
-        }
-        catch(URISyntaxException se){
-          se.printStackTrace();
-        }
+        calculateURI(link);
+        HBODigitalContent content = new HBODigitalContent();
+        movies.add(content);
+        int totalViews = content.getTotalViewsPerMonth(getJSON());
+        counter ++;
       }
     }
     return movies;
@@ -75,5 +49,39 @@ public class HBOMoviesProcessor implements MoviesProcessor {
       }
     );
     return sortedMovies;
+  }
+
+  /* Private methods */
+
+  private void calculateURI(Element link){
+    Date date = new Date(Long.parseLong(link.attr("data-d")));
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(date);
+    int month = cal.get(Calendar.MONTH) + 1;
+    int year = cal.get(Calendar.YEAR);
+    String url_string = "http://stats.grok.se/json/en/" + year + month + "/" + link.attr("data-t");
+    try{
+      uri = new URI(url_string.replace(" ", "%20"));
+    }
+    catch(URISyntaxException se){
+      se.printStackTrace();
+    }
+  }
+
+  private String getJSON(){
+  	String bodyString = "";
+  	try{
+      Document doc = Jsoup.connect(uri.toString()).get();
+      Elements body = doc.select("body");
+      bodyString = body.toString();
+      int curlyIndex = bodyString.indexOf("{");
+      bodyString = bodyString.substring(curlyIndex, bodyString.length());
+      int lessthanIndex = bodyString.indexOf("<");
+      bodyString = bodyString.substring(0, lessthanIndex);
+  	}
+    catch(java.io.IOException ioe){
+      ioe.printStackTrace();
+    }
+    return bodyString;  
   }
 }
