@@ -10,10 +10,14 @@ public class HBOMovies {
       }
 
       MoviesProcessor moviesProcessor = new HBOMoviesProcessor();
-      moviesProcessor.setDocument(org.jsoup.Jsoup.connect(url).get()); 
-      java.util.List<HBODigitalContent> movies = moviesProcessor.processMovies();
-      java.util.List sortedMovies = moviesProcessor.sortMovies(movies);
-
-      System.out.println("Sorted movies:\n " + sortedMovies);
+      moviesProcessor.setDocument(org.jsoup.Jsoup.connect(url).get());
+      try{
+        java.util.List<HBODigitalContent> movies = moviesProcessor.processMovies();
+        java.util.List sortedMovies = moviesProcessor.sortMovies(movies);
+        System.out.println("HBO movies sorted by views per month (most viewed first):\n " + sortedMovies);
+      }
+      catch(MovieProcessingException pe){
+        pe.printStackTrace();
+      }
     }
 }

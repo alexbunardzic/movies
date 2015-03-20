@@ -23,14 +23,19 @@ public class HBOMoviesProcessor implements MoviesProcessor {
   	document = doc;
   }
   
-  public java.util.List processMovies(){
+  public java.util.List processMovies() throws MovieProcessingException {
   	movieLinks = document.select("a[href]");
     for (Element link : movieLinks) {
       if(counter < 50) {
         calculateURI(link);
         HBODigitalContent content = new HBODigitalContent();
         movies.add(content);
-        int totalViews = content.getTotalViewsPerMonth(getJSON());
+        try{
+          int totalViews = content.getTotalViewsPerMonth(getJSON());
+        }
+        catch(MovieProcessingException pe){
+          throw pe;
+        }
         counter ++;
       }
     }
@@ -51,15 +56,15 @@ public class HBOMoviesProcessor implements MoviesProcessor {
     return sortedMovies;
   }
 
-  /* Private methods */
+  /* 
+   * Private methods 
+   */
 
   private void calculateURI(Element link){
     Date date = new Date(Long.parseLong(link.attr("data-d")));
     Calendar cal = Calendar.getInstance();
     cal.setTime(date);
-    int month = cal.get(Calendar.MONTH) + 1;
-    int year = cal.get(Calendar.YEAR);
-    String url_string = "http://stats.grok.se/json/en/" + year + month + "/" + link.attr("data-t");
+    String url_string = "http://stats.grok.se/json/en/" + cal.get(Calendar.YEAR) + (cal.get(Calendar.MONTH) + 1) + "/" + link.attr("data-t");
     try{
       uri = new URI(url_string.replace(" ", "%20"));
     }

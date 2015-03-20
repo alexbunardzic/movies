@@ -15,5 +15,5 @@ public interface DigitalContent {
   public java.util.Date getOriginalAirDate();
   public void setTotalMonthlyViews(int total);
   public int getTotalMonthlyViews();
-  public int getTotalViewsPerMonth(String dailyViews);
+  public int getTotalViewsPerMonth(String dailyViews) throws MovieProcessingException;
 }

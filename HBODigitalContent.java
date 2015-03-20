@@ -1,7 +1,6 @@
 //package com.hbo.content;
 
 import org.json.simple.JSONObject;
-import org.json.simple.parser.ParseException;
 import org.json.simple.parser.JSONParser;
 
 public class HBODigitalContent implements DigitalContent, Comparable<HBODigitalContent> {
@@ -58,7 +57,7 @@ public class HBODigitalContent implements DigitalContent, Comparable<HBODigitalC
   	return totalMonthlyViews;
   }
 
-  public int getTotalViewsPerMonth(String bodyString){
+  public int getTotalViewsPerMonth(String bodyString) throws MovieProcessingException {
   	int totalViews = 0;
   	try{
   	  jsonBody = (JSONObject)new JSONParser().parse(bodyString);
@@ -67,9 +66,8 @@ public class HBODigitalContent implements DigitalContent, Comparable<HBODigitalC
   	  json2 = (JSONObject)new JSONParser().parse(json.toString());
   	  totalViews = tallyUpViews(json2, jsonBody.get("month"));
     }
-    catch(ParseException pe){
-      System.out.println("position: " + pe.getPosition());
-      System.out.println(pe);
+    catch(org.json.simple.parser.ParseException pe){
+      throw new MovieProcessingException("Error in parsing JSON");
     }
   	this.setTotalMonthlyViews(totalViews);
     return totalViews;
@@ -102,11 +100,3 @@ public class HBODigitalContent implements DigitalContent, Comparable<HBODigitalC
   	return totalViews;
   }
 }
-
-
-
-
-
-
-
-
