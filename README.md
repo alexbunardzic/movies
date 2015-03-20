@@ -4,4 +4,4 @@ Ranks HBO GO available movies by popularity based on matching Wikipedia page vie
 Finally, the program sorts the list of movies by the total number of monthly views.
 
 ## Third Party Libraries
-We're using jsoup-1.8.1.jar (http://jsoup.org) for parsing the HTML document, and json-simple-1.1.1.jar (https://code.google.com/p/json-simple/) for processing JSON.
+I'm using jsoup-1.8.1.jar (http://jsoup.org) for parsing the HTML document, and json-simple-1.1.1.jar (https://code.google.com/p/json-simple/) for processing JSON.
